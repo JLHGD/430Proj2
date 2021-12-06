@@ -1,5 +1,81 @@
 "use strict";
 
+var ChangingAdvertisement = function ChangingAdvertisement(props) {
+  if (window.location.pathname === '/campaignNotes') {
+    return /*#__PURE__*/React.createElement("a", {
+      href: "https://www.google.com/"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: "assets/img/ad1.png",
+      alt: "Advertisement 1"
+    }));
+  } else if (window.location.pathname === '/playerNotes') {
+    return /*#__PURE__*/React.createElement("a", {
+      href: "https://www.google.com/"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: "assets/img/ad2.png",
+      alt: "Advertisement 2"
+    }));
+  } else {
+    return /*#__PURE__*/React.createElement("a", {
+      href: "https://www.google.com/"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: "assets/img/ad3.png",
+      alt: "Advertisement 3"
+    }));
+  }
+};
+
+var renderAds = function renderAds(csrf) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(ChangingAdvertisement, {
+    csrf: csrf
+  }), document.querySelector("#ads"));
+};
+"use strict";
+
+var setup = function setup(csrf) {
+  switch (window.location.pathname) {
+    case '/campaignNotes':
+      renderCampaigns(csrf);
+      break;
+
+    case '/characterNotes':
+      renderCharacters(csrf);
+      break;
+
+    case '/playerNotes':
+      renderPlayers(csrf);
+      break;
+
+    case '/miscNotes':
+      renderMisc(csrf);
+      break;
+
+    case '/sessionNotes':
+      renderSessions(csrf);
+      break;
+
+    case '/changePass':
+      renderChangePass(csrf);
+      break;
+
+    default:
+      renderCampaigns(csrf);
+  }
+
+  renderAds(csrf);
+};
+
+var getToken = function getToken() {
+  sendAjax('GET', '/getToken', null, function (result) {
+    setup(result.csrfToken);
+  });
+};
+
+$(document).ready(function () {
+  getToken();
+});
+"use strict";
+
 var popUpOpen = false;
 
 var handleCampaign = function handleCampaign(e) {
@@ -24,8 +100,7 @@ var editCampaign = function editCampaign(e) {
 };
 
 var EditCampaignForm = function EditCampaignForm(props) {
-  /*#__PURE__*/
-  React.createElement("form", {
+  return /*#__PURE__*/React.createElement("form", {
     id: "editCampaignForm",
     onSubmit: editCampaign,
     name: "editCampaignForm",
@@ -140,29 +215,78 @@ var loadCampaignsFromServer = function loadCampaignsFromServer() {
   sendAjax('GET', '/getCampaigns', null, function (data) {
     ReactDOM.render( /*#__PURE__*/React.createElement(CampaignList, {
       campaigns: data.campaigns
-    }), document.querySelector("#campaigns"));
+    }), document.querySelector("#items"));
   });
 };
 
-var setup = function setup(csrf) {
+var renderCampaigns = function renderCampaigns(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(NewCampaignForm, {
     csrf: csrf
-  }), document.querySelector("#campaignNotes"));
+  }), document.querySelector("#notes"));
   ReactDOM.render( /*#__PURE__*/React.createElement(CampaignList, {
     campaigns: []
-  }), document.querySelector("#campaigns"));
+  }), document.querySelector("#items"));
   loadCampaignsFromServer();
 };
+"use strict";
 
-var getToken = function getToken() {
-  sendAjax('GET', '/getToken', null, function (result) {
-    setup(result.csrfToken);
-  });
+var handleCampaign = function handleCampaign(e) {
+  e.preventDefault();
+
+  if ($("#oldPass").val() == '' || $("#newPass").val() == '' || $("#newPassVerif").val() == '') {
+    handleError("All fields are required to change password");
+    return false;
+  }
+
+  sendAjax('POST', $("#changePassForm").attr("action"), $("#changePassForm").serialize(), redirect);
+  return false;
 };
 
-$(document).ready(function () {
-  getToken();
-});
+var ChangePassForm = function ChangePassForm(props) {
+  return /*#__PURE__*/React.createElement("form", {
+    id: "changePassForm",
+    onSubmit: handleCampaign,
+    name: "changePassForm",
+    action: "/changePass",
+    method: "POST",
+    className: "changePassForm"
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "oldPass"
+  }, "Old Password: "), /*#__PURE__*/React.createElement("input", {
+    id: "oldPass",
+    type: "password",
+    name: "oldPass",
+    placeholder: "Old Pass"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "newPass"
+  }, "New Password: "), /*#__PURE__*/React.createElement("input", {
+    id: "newPass",
+    type: "password",
+    name: "newPass",
+    placeholder: "New Pass"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "newPassVerif"
+  }, "Re-type New Password: "), /*#__PURE__*/React.createElement("input", {
+    id: "newPassVerif",
+    type: "password",
+    name: "newPassVerif",
+    placeholder: "Type New Pass Again"
+  }), /*#__PURE__*/React.createElement("input", {
+    type: "hidden",
+    name: "_csrf",
+    value: props.csrf
+  }), /*#__PURE__*/React.createElement("input", {
+    className: "changePassword",
+    type: "submit",
+    value: "Change Password"
+  }));
+};
+
+var renderChangePass = function renderChangePass(csrf) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(ChangePassForm, {
+    csrf: csrf
+  }), document.querySelector("#notes"));
+};
 "use strict";
 
 var popUpOpen = false;
@@ -192,32 +316,46 @@ var EditCharacterForm = function EditCharacterForm(props) {
   /*#__PURE__*/
   React.createElement("form", {
     id: "editCharacterForm",
-    onSubmit: editCahracter,
+    onSubmit: editCharacter,
     name: "editCharacterForm",
     action: "/characterNotes",
     method: "POST",
     className: "editCharacterForm"
   }, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "title"
-  }, "Title: "), /*#__PURE__*/React.createElement("input", {
-    id: "characterTitle",
+    htmlFor: "name"
+  }, "Name: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterName",
     type: "text",
-    name: "title",
-    placeholder: "Character Title"
+    name: "name",
+    placeholder: "Character Name"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
+    htmlFor: "characterlevel"
+  }, "Level: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterLevel",
     type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
+    name: "characterlevel",
+    placeholder: "Level"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
-  }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
+    htmlFor: "characterhealth"
+  }, "Health: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterHealth",
+    type: "text",
+    name: "characterhealth",
+    placeholder: "Health"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characterstats"
+  }, "Stats: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterStats",
+    name: "characterstats",
     form: "editCharacterForm",
-    placeholder: "Setting Information"
+    placeholder: "Stats"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characternotes"
+  }, "Notes: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterNotes",
+    name: "characternotes",
+    form: "editCharacterForm",
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
@@ -238,26 +376,40 @@ var NewCharacterForm = function NewCharacterForm(props) {
     method: "POST",
     className: "newCharacterForm"
   }, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "title"
-  }, "Title: "), /*#__PURE__*/React.createElement("input", {
-    id: "characterTitle",
+    htmlFor: "name"
+  }, "Name: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterName",
     type: "text",
-    name: "title",
-    placeholder: "Character Title"
+    name: "name",
+    placeholder: "Character Name"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
+    htmlFor: "characterlevel"
+  }, "Level: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterLevel",
     type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
+    name: "characterlevel",
+    placeholder: "Level"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
-  }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
-    form: "newCharacterForm",
-    placeholder: "Setting Information"
+    htmlFor: "characterhealth"
+  }, "Health: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterHealth",
+    type: "text",
+    name: "characterhealth",
+    placeholder: "Health"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characterstats"
+  }, "Stats: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterStats",
+    name: "characterstats",
+    form: "editCharacterForm",
+    placeholder: "Stats"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characternotes"
+  }, "Notes: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterNotes",
+    name: "characternotes",
+    form: "editCharacterForm",
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
@@ -277,7 +429,7 @@ var CharacterList = function CharacterList(props) {
     return /*#__PURE__*/React.createElement("div", {
       className: "characterList"
     }, /*#__PURE__*/React.createElement("h3", {
-      className: "emptyCCharacter"
+      className: "emptyCharacter"
     }, "No characters created"));
   }
 
@@ -305,33 +457,23 @@ var CharacterList = function CharacterList(props) {
   }, characterNodes);
 };
 
-var loadCharacterFromServer = function loadCharacterFromServer() {
+var loadCharactersFromServer = function loadCharactersFromServer() {
   sendAjax('GET', '/getCharacters', null, function (data) {
     ReactDOM.render( /*#__PURE__*/React.createElement(CharacterList, {
       character: data.characters
-    }), document.querySelector("#characters"));
+    }), document.querySelector("#items"));
   });
 };
 
-var setup = function setup(csrf) {
+var renderCharacters = function renderCharacters(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(NewCharacterForm, {
     csrf: csrf
-  }), document.querySelector("#characterNotes"));
+  }), document.querySelector("#notes"));
   ReactDOM.render( /*#__PURE__*/React.createElement(CharacterList, {
     characters: []
-  }), document.querySelector("#characters"));
+  }), document.querySelector("#items"));
   loadCharactersFromServer();
 };
-
-var getToken = function getToken() {
-  sendAjax('GET', '/getToken', null, function (result) {
-    setup(result.csrfToken);
-  });
-};
-
-$(document).ready(function () {
-  getToken();
-});
 "use strict";
 
 var popUpOpen = false;
@@ -339,7 +481,7 @@ var popUpOpen = false;
 var handleMisc = function handleMisc(e) {
   e.preventDefault();
 
-  if ($("#miscTitle").val() == '' || $("#gameSystem").val() == '' || $("#settingInfo").val() == '') {
+  if ($("#miscTitle").val() == '' || $("#miscNotes").val() == '') {
     handleError("All fields are required for misc creation (Can be editted later)");
     return false;
   }
@@ -374,19 +516,12 @@ var EditMiscForm = function EditMiscForm(props) {
     name: "title",
     placeholder: "Misc Title"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
-    type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
-  }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
+    htmlFor: "miscnotes"
   }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
+    id: "miscNotes",
+    name: "miscnotes",
     form: "editMiscForm",
-    placeholder: "Setting Information"
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
@@ -414,19 +549,12 @@ var NewMiscForm = function NewMiscForm(props) {
     name: "title",
     placeholder: "Misc Title"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
-    type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
-  }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
+    htmlFor: "miscnotes"
   }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
-    form: "newMiscForm",
-    placeholder: "Setting Information"
+    id: "miscNotes",
+    name: "miscnotes",
+    form: "editMiscForm",
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
@@ -457,10 +585,8 @@ var MiscList = function MiscList(props) {
     }, /*#__PURE__*/React.createElement("h3", {
       className: "miscTitle"
     }, " ", misc.title, " "), /*#__PURE__*/React.createElement("p", {
-      className: "miscGameSystem"
-    }, " Game System: ", misc.gamesystem, " "), /*#__PURE__*/React.createElement("p", {
-      className: "miscSettingInfo"
-    }, " Setting Info: ", misc.settinginfo, " "), /*#__PURE__*/React.createElement("button", {
+      className: "miscNotes"
+    }, " Notes: ", misc.notes, " "), /*#__PURE__*/React.createElement("button", {
       type: "button",
       className: "editMiscButton"
     }, "Edit"));
@@ -471,362 +597,380 @@ var MiscList = function MiscList(props) {
 };
 
 var loadMiscFromServer = function loadMiscFromServer() {
-  sendAjax('GET', '/getMisc', null, function (data) {
+  sendAjax('GET', '/getMiscNotes', null, function (data) {
     ReactDOM.render( /*#__PURE__*/React.createElement(MiscList, {
       miscNotes: data.miscNotes
-    }), document.querySelector("#miscsNotes"));
+    }), document.querySelector("#items"));
   });
 };
 
-var setup = function setup(csrf) {
+var renderMisc = function renderMisc(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(NewMiscForm, {
     csrf: csrf
-  }), document.querySelector("#miscNotesForm"));
-  ReactDOM.render( /*#__PURE__*/React.createElement(CMiscList, {
+  }), document.querySelector("#notes"));
+  ReactDOM.render( /*#__PURE__*/React.createElement(MiscList, {
     miscNotes: []
-  }), document.querySelector("#miscsNotes"));
+  }), document.querySelector("#items"));
   loadMiscFromServer();
 };
-
-var getToken = function getToken() {
-  sendAjax('GET', '/getToken', null, function (result) {
-    setup(result.csrfToken);
-  });
-};
-
-$(document).ready(function () {
-  getToken();
-});
 "use strict";
 
 var popUpOpen = false;
 
-var handleCampaign = function handleCampaign(e) {
+var handlePlayer = function handlePlayer(e) {
   e.preventDefault();
 
-  if ($("#campaignTitle").val() == '' || $("#gameSystem").val() == '' || $("#settingInfo").val() == '') {
-    handleError("All fields are required for campaign creation (Can be editted later)");
+  if ($("#playerName").val() == '' || $("#characterName").val() == '') {
+    handleError("All fields are required for player doc creation (Can be editted later)");
     return false;
   }
 
-  sendAjax('POST', $("#newCampaignForm").attr("action"), $("#newCampaignForm").serialize(), function () {
-    loadCampaignsFromServer();
+  sendAjax('POST', $("#newPlayerForm").attr("action"), $("#newPlayerForm").serialize(), function () {
+    loadPlayersFromServer();
   });
   return false;
 };
 
-var editCampaign = function editCampaign(e) {
+var editPlayer = function editPlayer(e) {
   e.preventDefault();
-  sendAjax('POST', $("#editCampaignForm").attr("action"), $("#editCampaignForm").serialize(), function () {
-    loadCampaignsFromServer();
+  sendAjax('POST', $("#editPlayerForm").attr("action"), $("#editPlayerForm").serialize(), function () {
+    loadPlayersFromServer();
   });
 };
 
-var EditCampaignForm = function EditCampaignForm(props) {
+var EditPlayerForm = function EditPlayerForm(props) {
   /*#__PURE__*/
   React.createElement("form", {
-    id: "editCampaignForm",
-    onSubmit: editCampaign,
-    name: "editCampaignForm",
-    action: "/campaignNotes",
+    id: "editPlayerForm",
+    onSubmit: editPlayer,
+    name: "editPlayerForm",
+    action: "/playerNotes",
     method: "POST",
-    className: "editCampaignForm"
+    className: "editPlayerForm"
   }, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "title"
-  }, "Title: "), /*#__PURE__*/React.createElement("input", {
-    id: "campaignTitle",
+    htmlFor: "playername"
+  }, "Player name: "), /*#__PURE__*/React.createElement("input", {
+    id: "playerName",
     type: "text",
-    name: "title",
-    placeholder: "Campaign Title"
+    name: "playername",
+    placeholder: "Name"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
+    htmlFor: "charactername"
+  }, "Character Name: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterName",
     type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
+    name: "charactername",
+    placeholder: "Name"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
-  }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
-    form: "editCampaignForm",
-    placeholder: "Setting Information"
+    htmlFor: "characterlevel"
+  }, "Level: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterLevel",
+    type: "text",
+    name: "characterlevel",
+    placeholder: "Level"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characterhealth"
+  }, "Health: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterHealth",
+    type: "text",
+    name: "characterhealth",
+    placeholder: "Health"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characterstats"
+  }, "Stats: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterStats",
+    name: "characterstats",
+    form: "editCharacterForm",
+    placeholder: "Stats"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characternotes"
+  }, "Notes: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterNotes",
+    name: "characternotes",
+    form: "editCharacterForm",
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
     value: props.csrf
   }), /*#__PURE__*/React.createElement("input", {
-    className: "editCampaign",
+    className: "editPlayer",
     type: "submit",
     value: "Finish Editing"
   }));
 };
 
-var NewCampaignForm = function NewCampaignForm(props) {
+var NewPlayerForm = function NewPlayerForm(props) {
   return /*#__PURE__*/React.createElement("form", {
-    id: "newCampaignForm",
-    onSubmit: handleCampaign,
-    name: "newCampaignForm",
-    action: "/campaignNotes",
+    id: "newPlayerForm",
+    onSubmit: handlePlayer,
+    name: "newPlayerForm",
+    action: "/playerNotes",
     method: "POST",
-    className: "newCampaignForm"
+    className: "newPlayerForm"
   }, /*#__PURE__*/React.createElement("label", {
-    htmlFor: "title"
-  }, "Title: "), /*#__PURE__*/React.createElement("input", {
-    id: "campaignTitle",
+    htmlFor: "playername"
+  }, "Player name: "), /*#__PURE__*/React.createElement("input", {
+    id: "playerName",
     type: "text",
-    name: "title",
-    placeholder: "Campaign Title"
+    name: "playername",
+    placeholder: "Name"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
+    htmlFor: "charactername"
+  }, "Character Name: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterName",
     type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
+    name: "charactername",
+    placeholder: "Name"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
-  }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
-    form: "newCampaignForm",
-    placeholder: "Setting Information"
+    htmlFor: "characterlevel"
+  }, "Level: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterLevel",
+    type: "text",
+    name: "characterlevel",
+    placeholder: "Level"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characterhealth"
+  }, "Health: "), /*#__PURE__*/React.createElement("input", {
+    id: "characterHealth",
+    type: "text",
+    name: "characterhealth",
+    placeholder: "Health"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characterstats"
+  }, "Stats: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterStats",
+    name: "characterstats",
+    form: "editCharacterForm",
+    placeholder: "Stats"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "characternotes"
+  }, "Notes: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "characterNotes",
+    name: "characternotes",
+    form: "editCharacterForm",
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
     value: props.csrf
   }), /*#__PURE__*/React.createElement("input", {
-    className: "createCampaign",
+    className: "createPlayer",
     type: "submit",
     value: "Create"
   }));
 }; // Can add images to here with an image tag
-////// COPY NewCampaignForm AND ADD IT TO HERE FOR THE EDIT BUTTON
-///// at campaignNodes return div key...
+////// COPY NewPlayerForm AND ADD IT TO HERE FOR THE EDIT BUTTON
+///// at playerNodes return div key...
 
 
-var CampaignList = function CampaignList(props) {
-  if (props.campaigns.length === 0) {
+var PlayerList = function PlayerList(props) {
+  if (props.players.length === 0) {
     return /*#__PURE__*/React.createElement("div", {
-      className: "campaignList"
+      className: "playerList"
     }, /*#__PURE__*/React.createElement("h3", {
-      className: "emptyCampaign"
-    }, "No campaigns created"));
+      className: "emptyPlayer"
+    }, "No players created"));
   }
 
-  var campaignNodes = props.campaigns.map(function (campaign) {
+  var playerNodes = props.players.map(function (player) {
     return /*#__PURE__*/React.createElement("div", {
-      key: campaign._id,
-      className: "campaign"
+      key: player._id,
+      className: "player"
     }, /*#__PURE__*/React.createElement("h3", {
-      className: "campaignTitle"
-    }, " ", campaign.title, " "), /*#__PURE__*/React.createElement("p", {
-      className: "campaignGameSystem"
-    }, " Game System: ", campaign.gamesystem, " "), /*#__PURE__*/React.createElement("p", {
-      className: "campaignSettingInfo"
-    }, " Setting Info: ", campaign.settinginfo, " "), /*#__PURE__*/React.createElement("button", {
+      className: "playerName"
+    }, " ", player.playername, " "), /*#__PURE__*/React.createElement("p", {
+      className: "characterName"
+    }, " ", player.charactername), /*#__PURE__*/React.createElement("p", {
+      className: "characterLevel"
+    }, " Level: ", player.characterlevel, " "), /*#__PURE__*/React.createElement("p", {
+      className: "characterHealth"
+    }, " Health: ", player.characterhealth, " "), /*#__PURE__*/React.createElement("p", {
+      className: "characterStats"
+    }, " Stats: ", player.characterstats, " "), /*#__PURE__*/React.createElement("p", {
+      className: "characterNotes"
+    }, " Notes: ", player.notes, " "), /*#__PURE__*/React.createElement("button", {
       type: "button",
-      className: "editCampaignButton"
+      className: "editPlayerButton"
     }, "Edit"));
   });
   return /*#__PURE__*/React.createElement("div", {
-    className: "campaignList"
-  }, campaignNodes);
+    className: "playerList"
+  }, playerNodes);
 };
 
-var loadCampaignsFromServer = function loadCampaignsFromServer() {
-  sendAjax('GET', '/getCampaigns', null, function (data) {
-    ReactDOM.render( /*#__PURE__*/React.createElement(CampaignList, {
-      campaigns: data.campaigns
-    }), document.querySelector("#campaigns"));
+var loadPlayersFromServer = function loadPlayersFromServer() {
+  sendAjax('GET', '/getPlayers', null, function (data) {
+    ReactDOM.render( /*#__PURE__*/React.createElement(PlayerList, {
+      players: data.players
+    }), document.querySelector("#items"));
   });
 };
 
-var setup = function setup(csrf) {
-  ReactDOM.render( /*#__PURE__*/React.createElement(NewCampaignForm, {
+var renderPlayers = function renderPlayers(csrf) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(NewPlayerForm, {
     csrf: csrf
-  }), document.querySelector("#campaignNotes"));
-  ReactDOM.render( /*#__PURE__*/React.createElement(CampaignList, {
-    campaigns: []
-  }), document.querySelector("#campaigns"));
-  loadCampaignsFromServer();
+  }), document.querySelector("#notes"));
+  ReactDOM.render( /*#__PURE__*/React.createElement(PlayerList, {
+    players: []
+  }), document.querySelector("#items"));
+  loadPlayersFromServer();
 };
-
-var getToken = function getToken() {
-  sendAjax('GET', '/getToken', null, function (result) {
-    setup(result.csrfToken);
-  });
-};
-
-$(document).ready(function () {
-  getToken();
-});
 "use strict";
 
 var popUpOpen = false;
 
-var handleCampaign = function handleCampaign(e) {
+var handleSession = function handleSession(e) {
   e.preventDefault();
 
-  if ($("#campaignTitle").val() == '' || $("#gameSystem").val() == '' || $("#settingInfo").val() == '') {
-    handleError("All fields are required for campaign creation (Can be editted later)");
+  if ($("#sessionTitle").val() == '' || $("#number").val() == '' || $("#notes").val() == '') {
+    handleError("All fields are required for session creation (Can be editted later)");
     return false;
   }
 
-  sendAjax('POST', $("#newCampaignForm").attr("action"), $("#newCampaignForm").serialize(), function () {
-    loadCampaignsFromServer();
+  sendAjax('POST', $("#newSessionForm").attr("action"), $("#newSessionForm").serialize(), function () {
+    loadSessionsFromServer();
   });
   return false;
 };
 
-var editCampaign = function editCampaign(e) {
+var editSession = function editSession(e) {
   e.preventDefault();
-  sendAjax('POST', $("#editCampaignForm").attr("action"), $("#editCampaignForm").serialize(), function () {
-    loadCampaignsFromServer();
+  sendAjax('POST', $("#editSessionForm").attr("action"), $("#editSessionForm").serialize(), function () {
+    loadSessionsFromServer();
   });
 };
 
-var EditCampaignForm = function EditCampaignForm(props) {
+var EditSessionForm = function EditSessionForm(props) {
   /*#__PURE__*/
   React.createElement("form", {
-    id: "editCampaignForm",
-    onSubmit: editCampaign,
-    name: "editCampaignForm",
-    action: "/campaignNotes",
+    id: "editSessionForm",
+    onSubmit: editSession,
+    name: "editSessionForm",
+    action: "/sessionNotes",
     method: "POST",
-    className: "editCampaignForm"
+    className: "editSessionForm"
   }, /*#__PURE__*/React.createElement("label", {
     htmlFor: "title"
   }, "Title: "), /*#__PURE__*/React.createElement("input", {
-    id: "campaignTitle",
+    id: "sessionTitle",
     type: "text",
     name: "title",
-    placeholder: "Campaign Title"
+    placeholder: "Session Title"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
+    htmlFor: "number"
+  }, "Session Number: "), /*#__PURE__*/React.createElement("input", {
+    id: "number",
     type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
+    name: "number",
+    placeholder: "Number"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
-  }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
-    form: "editCampaignForm",
-    placeholder: "Setting Information"
+    htmlFor: "notes"
+  }, "Notes: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "notes",
+    name: "notes",
+    form: "editSessionForm",
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
     value: props.csrf
   }), /*#__PURE__*/React.createElement("input", {
-    className: "editCampaign",
+    className: "editSession",
     type: "submit",
     value: "Finish Editing"
   }));
 };
 
-var NewCampaignForm = function NewCampaignForm(props) {
+var NewSessionForm = function NewSessionForm(props) {
   return /*#__PURE__*/React.createElement("form", {
-    id: "newCampaignForm",
-    onSubmit: handleCampaign,
-    name: "newCampaignForm",
-    action: "/campaignNotes",
+    id: "newSessionForm",
+    onSubmit: handleSession,
+    name: "newSessionForm",
+    action: "/sessionNotes",
     method: "POST",
-    className: "newCampaignForm"
+    className: "newSessionForm"
   }, /*#__PURE__*/React.createElement("label", {
     htmlFor: "title"
   }, "Title: "), /*#__PURE__*/React.createElement("input", {
-    id: "campaignTitle",
+    id: "sessionTitle",
     type: "text",
     name: "title",
-    placeholder: "Campaign Title"
+    placeholder: "Session Title"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "gamesystem"
-  }, "Game System: "), /*#__PURE__*/React.createElement("input", {
-    id: "gameSystem",
+    htmlFor: "number"
+  }, "Session Number: "), /*#__PURE__*/React.createElement("input", {
+    id: "number",
     type: "text",
-    name: "gamesystem",
-    placeholder: "Game System"
+    name: "number",
+    placeholder: "Number"
   }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "settinginfo"
-  }, "Setting Information: "), /*#__PURE__*/React.createElement("textarea", {
-    id: "settinginfo",
-    name: "settinginfo",
-    form: "newCampaignForm",
-    placeholder: "Setting Information"
+    htmlFor: "notes"
+  }, "Notes: "), /*#__PURE__*/React.createElement("textarea", {
+    id: "notes",
+    name: "notes",
+    form: "editSessionForm",
+    placeholder: "Notes"
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     name: "_csrf",
     value: props.csrf
   }), /*#__PURE__*/React.createElement("input", {
-    className: "createCampaign",
+    className: "createSession",
     type: "submit",
-    value: "Create"
+    value: "Finish Editing"
   }));
 }; // Can add images to here with an image tag
-////// COPY NewCampaignForm AND ADD IT TO HERE FOR THE EDIT BUTTON
-///// at campaignNodes return div key...
+////// COPY NewSessionForm AND ADD IT TO HERE FOR THE EDIT BUTTON
+///// at sessionNodes return div key...
 
 
-var CampaignList = function CampaignList(props) {
-  if (props.campaigns.length === 0) {
+var SessionList = function SessionList(props) {
+  if (props.sessions.length === 0) {
     return /*#__PURE__*/React.createElement("div", {
-      className: "campaignList"
+      className: "sessionList"
     }, /*#__PURE__*/React.createElement("h3", {
-      className: "emptyCampaign"
-    }, "No campaigns created"));
+      className: "emptySession"
+    }, "No sessions created"));
   }
 
-  var campaignNodes = props.campaigns.map(function (campaign) {
+  var sessionNodes = props.sessions.map(function (session) {
     return /*#__PURE__*/React.createElement("div", {
-      key: campaign._id,
-      className: "campaign"
+      key: session._id,
+      className: "session"
     }, /*#__PURE__*/React.createElement("h3", {
-      className: "campaignTitle"
-    }, " ", campaign.title, " "), /*#__PURE__*/React.createElement("p", {
-      className: "campaignGameSystem"
-    }, " Game System: ", campaign.gamesystem, " "), /*#__PURE__*/React.createElement("p", {
-      className: "campaignSettingInfo"
-    }, " Setting Info: ", campaign.settinginfo, " "), /*#__PURE__*/React.createElement("button", {
+      className: "sessionTitle"
+    }, " ", session.title, " "), /*#__PURE__*/React.createElement("p", {
+      className: "sessionGameSystem"
+    }, " Game System: ", session.gamesystem, " "), /*#__PURE__*/React.createElement("p", {
+      className: "sessionSettingInfo"
+    }, " Setting Info: ", session.settinginfo, " "), /*#__PURE__*/React.createElement("button", {
       type: "button",
-      className: "editCampaignButton"
+      className: "editSessionButton"
     }, "Edit"));
   });
   return /*#__PURE__*/React.createElement("div", {
-    className: "campaignList"
-  }, campaignNodes);
+    className: "sessionList"
+  }, sessionNodes);
 };
 
-var loadCampaignsFromServer = function loadCampaignsFromServer() {
-  sendAjax('GET', '/getCampaigns', null, function (data) {
-    ReactDOM.render( /*#__PURE__*/React.createElement(CampaignList, {
-      campaigns: data.campaigns
-    }), document.querySelector("#campaigns"));
+var loadSessionsFromServer = function loadSessionsFromServer() {
+  sendAjax('GET', '/getSessions', null, function (data) {
+    ReactDOM.render( /*#__PURE__*/React.createElement(SessionList, {
+      sessions: data.sessions
+    }), document.querySelector("#items"));
   });
 };
 
-var setup = function setup(csrf) {
-  ReactDOM.render( /*#__PURE__*/React.createElement(NewCampaignForm, {
+var renderSessions = function renderSessions(csrf) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(NewSessionForm, {
     csrf: csrf
-  }), document.querySelector("#campaignNotes"));
-  ReactDOM.render( /*#__PURE__*/React.createElement(CampaignList, {
-    campaigns: []
-  }), document.querySelector("#campaigns"));
-  loadCampaignsFromServer();
+  }), document.querySelector("#notes"));
+  ReactDOM.render( /*#__PURE__*/React.createElement(SessionList, {
+    sessions: []
+  }), document.querySelector("#items"));
+  loadSessionsFromServer();
 };
-
-var getToken = function getToken() {
-  sendAjax('GET', '/getToken', null, function (result) {
-    setup(result.csrfToken);
-  });
-};
-
-$(document).ready(function () {
-  getToken();
-});
 "use strict";
 
 var handleError = function handleError(message) {

@@ -14,8 +14,8 @@ const router = (app) => {
     app.post('/login', mid.requiresSecure, mid.requiresLogout,  controllers.Account.login);
     app.post('/signup', mid.requiresSecure, mid.requiresLogout,  controllers.Account.signup);
     app.get('/logout', mid.requiresLogin, controllers.Account.logout);
-    // app.get('/resetpass', mid.requiresSecure, controllers.Account.resetPassPage);
-    // app.post('/resetpass', mid.requiresSecure, controllers.Account.resetPass);
+    app.get('/changePass', mid.requiresLogin, controllers.Account.changePassPage);
+    app.post('/changePass', mid.requiresLogin, controllers.Account.changePass);
 
     app.get('/campaignNotes', mid.requiresLogin, controllers.Campaign.campaignPage);
     app.post('/campaignNotes', mid.requiresLogin, controllers.Campaign.makeCampaign);

@@ -25,21 +25,27 @@ const editCharacter = (e) => {
 
 const EditCharacterForm = (props) => {
     <form id="editCharacterForm"
-          onSubmit={editCahracter}
+          onSubmit={editCharacter}
           name="editCharacterForm"
           action="/characterNotes"
           method="POST"
           className="editCharacterForm"
     >
 
-        <label htmlFor="title">Title: </label>
-        <input id="characterTitle" type="text" name="title" placeholder="Character Title"/>
+        <label htmlFor="name">Name: </label>
+        <input id="characterName" type="text" name="name" placeholder="Character Name"/>
 
-        <label htmlFor="gamesystem">Game System: </label>
-        <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
+        <label htmlFor="characterlevel">Level: </label>
+        <input id="characterLevel" type="text" name="characterlevel" placeholder="Level"/>
 
-        <label htmlFor="settinginfo">Setting Information: </label>
-        <textarea id="settinginfo" name="settinginfo" form="editCharacterForm" placeholder="Setting Information"></textarea>
+        <label htmlFor="characterhealth">Health: </label>
+        <input id="characterHealth" type="text" name="characterhealth" placeholder="Health"/>
+
+        <label htmlFor="characterstats">Stats: </label>
+        <textarea id="characterStats" name="characterstats" form="editCharacterForm" placeholder="Stats"></textarea>
+
+        <label htmlFor="characternotes">Notes: </label>
+        <textarea id="characterNotes" name="characternotes" form="editCharacterForm" placeholder="Notes"></textarea>
 
         <input type="hidden" name="_csrf" value={props.csrf}/>
 
@@ -57,14 +63,20 @@ const NewCharacterForm = (props) => {
               className="newCharacterForm"
         >
 
-            <label htmlFor="title">Title: </label>
-            <input id="characterTitle" type="text" name="title" placeholder="Character Title"/>
+            <label htmlFor="name">Name: </label>
+            <input id="characterName" type="text" name="name" placeholder="Character Name"/>
 
-            <label htmlFor="gamesystem">Game System: </label>
-            <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
+            <label htmlFor="characterlevel">Level: </label>
+            <input id="characterLevel" type="text" name="characterlevel" placeholder="Level"/>
 
-            <label htmlFor="settinginfo">Setting Information: </label>
-            <textarea id="settinginfo" name="settinginfo" form="newCharacterForm" placeholder="Setting Information"></textarea>
+            <label htmlFor="characterhealth">Health: </label>
+            <input id="characterHealth" type="text" name="characterhealth" placeholder="Health"/>
+
+            <label htmlFor="characterstats">Stats: </label>
+            <textarea id="characterStats" name="characterstats" form="editCharacterForm" placeholder="Stats"></textarea>
+
+            <label htmlFor="characternotes">Notes: </label>
+            <textarea id="characterNotes" name="characternotes" form="editCharacterForm" placeholder="Notes"></textarea>
 
             <input type="hidden" name="_csrf" value={props.csrf}/>
 
@@ -81,7 +93,7 @@ const CharacterList = function(props) {
     if(props.characters.length === 0) {
         return (
             <div className="characterList">
-                <h3 className="emptyCCharacter">No characters created</h3>
+                <h3 className="emptyCharacter">No characters created</h3>
             </div>
         );
     }
@@ -106,32 +118,22 @@ const CharacterList = function(props) {
     );
 };
 
-const loadCharacterFromServer = () => {
+const loadCharactersFromServer = () => {
     sendAjax('GET', '/getCharacters', null, (data) => {
         ReactDOM.render(
-            <CharacterList character={data.characters} />, document.querySelector("#characters")
+            <CharacterList character={data.characters} />, document.querySelector("#items")
         );
     });
 };
 
-const setup = function(csrf) {
+const renderCharacters = function(csrf) {
     ReactDOM.render(
-        <NewCharacterForm csrf={csrf} />, document.querySelector("#characterNotes")
+        <NewCharacterForm csrf={csrf} />, document.querySelector("#notes")
     );
 
     ReactDOM.render(
-        <CharacterList characters={[]} />, document.querySelector("#characters")
+        <CharacterList characters={[]} />, document.querySelector("#items")
     );
 
     loadCharactersFromServer();
 };
-
-const getToken = () => {
-    sendAjax('GET', '/getToken', null, (result) => {
-        setup(result.csrfToken);
-    });
-};
-
-$(document).ready(function() {
-    getToken();
-});

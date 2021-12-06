@@ -3,7 +3,7 @@ let popUpOpen = false;
 const handleMisc = (e) => {
     e.preventDefault();
 
-    if($("#miscTitle").val() == '' || $("#gameSystem").val() == '' || $("#settingInfo").val() == ''){
+    if($("#miscTitle").val() == '' || $("#miscNotes").val() == ''){
         handleError("All fields are required for misc creation (Can be editted later)");
         return false;
     }
@@ -35,11 +35,8 @@ const EditMiscForm = (props) => {
         <label htmlFor="title">Title: </label>
         <input id="miscTitle" type="text" name="title" placeholder="Misc Title"/>
 
-        <label htmlFor="gamesystem">Game System: </label>
-        <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
-
-        <label htmlFor="settinginfo">Setting Information: </label>
-        <textarea id="settinginfo" name="settinginfo" form="editMiscForm" placeholder="Setting Information"></textarea>
+        <label htmlFor="miscnotes">Setting Information: </label>
+        <textarea id="miscNotes" name="miscnotes" form="editMiscForm" placeholder="Notes"></textarea>
 
         <input type="hidden" name="_csrf" value={props.csrf}/>
 
@@ -60,11 +57,8 @@ const NewMiscForm = (props) => {
             <label htmlFor="title">Title: </label>
             <input id="miscTitle" type="text" name="title" placeholder="Misc Title"/>
 
-            <label htmlFor="gamesystem">Game System: </label>
-            <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
-
-            <label htmlFor="settinginfo">Setting Information: </label>
-            <textarea id="settinginfo" name="settinginfo" form="newMiscForm" placeholder="Setting Information"></textarea>
+            <label htmlFor="miscnotes">Setting Information: </label>
+            <textarea id="miscNotes" name="miscnotes" form="editMiscForm" placeholder="Notes"></textarea>
 
             <input type="hidden" name="_csrf" value={props.csrf}/>
 
@@ -90,8 +84,7 @@ const MiscList = function(props) {
         return (
             <div key={misc._id} className="misc">
                 <h3 className="miscTitle"> {misc.title} </h3>
-                <p className="miscGameSystem"> Game System: {misc.gamesystem} </p>
-                <p className="miscSettingInfo"> Setting Info: {misc.settinginfo} </p>
+                <p className="miscNotes"> Notes: {misc.notes} </p>
                 <button type="button" className="editMiscButton">Edit</button>
             </div>
         );
@@ -105,31 +98,21 @@ const MiscList = function(props) {
 };
 
 const loadMiscFromServer = () => {
-    sendAjax('GET', '/getMisc', null, (data) => {
+    sendAjax('GET', '/getMiscNotes', null, (data) => {
         ReactDOM.render(
-            <MiscList miscNotes={data.miscNotes} />, document.querySelector("#miscsNotes")
+            <MiscList miscNotes={data.miscNotes} />, document.querySelector("#items")
         );
     });
 };
 
-const setup = function(csrf) {
+const renderMisc = function(csrf) {
     ReactDOM.render(
-        <NewMiscForm csrf={csrf} />, document.querySelector("#miscNotesForm")
+        <NewMiscForm csrf={csrf} />, document.querySelector("#notes")
     );
 
     ReactDOM.render(
-        <CMiscList miscNotes={[]} />, document.querySelector("#miscsNotes")
+        <MiscList miscNotes={[]} />, document.querySelector("#items")
     );
 
     loadMiscFromServer();
 };
-
-const getToken = () => {
-    sendAjax('GET', '/getToken', null, (result) => {
-        setup(result.csrfToken);
-    });
-};
-
-$(document).ready(function() {
-    getToken();
-});

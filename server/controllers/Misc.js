@@ -52,7 +52,7 @@ const getMiscNotes = (request, response) => {
             return res.status(400).json({error: 'An error ocurred'});
         }
 
-        return res.json({miscnotes: docs});
+        return res.json({miscNotes: docs});
     });
 };
 

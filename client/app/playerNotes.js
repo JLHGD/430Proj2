@@ -1,135 +1,146 @@
 let popUpOpen = false;
 
-const handleCampaign = (e) => {
+const handlePlayer = (e) => {
     e.preventDefault();
 
-    if($("#campaignTitle").val() == '' || $("#gameSystem").val() == '' || $("#settingInfo").val() == ''){
-        handleError("All fields are required for campaign creation (Can be editted later)");
+    if($("#playerName").val() == '' || $("#characterName").val() == ''){
+        handleError("All fields are required for player doc creation (Can be editted later)");
         return false;
     }
 
-    sendAjax('POST', $("#newCampaignForm").attr("action"), $("#newCampaignForm").serialize(), function() {
-        loadCampaignsFromServer();
+    sendAjax('POST', $("#newPlayerForm").attr("action"), $("#newPlayerForm").serialize(), function() {
+        loadPlayersFromServer();
     });
 
     return false;
 };
 
-const editCampaign = (e) => {
+const editPlayer = (e) => {
     e.preventDefault();
 
-    sendAjax('POST', $("#editCampaignForm").attr("action"), $("#editCampaignForm").serialize(), function() {
-        loadCampaignsFromServer();
+    sendAjax('POST', $("#editPlayerForm").attr("action"), $("#editPlayerForm").serialize(), function() {
+        loadPlayersFromServer();
     });
 };
 
-const EditCampaignForm = (props) => {
-    <form id="editCampaignForm"
-          onSubmit={editCampaign}
-          name="editCampaignForm"
-          action="/campaignNotes"
+const EditPlayerForm = (props) => {
+    <form id="editPlayerForm"
+          onSubmit={editPlayer}
+          name="editPlayerForm"
+          action="/playerNotes"
           method="POST"
-          className="editCampaignForm"
+          className="editPlayerForm"
     >
 
-        <label htmlFor="title">Title: </label>
-        <input id="campaignTitle" type="text" name="title" placeholder="Campaign Title"/>
+        <label htmlFor="playername">Player name: </label>
+        <input id="playerName" type="text" name="playername" placeholder="Name"/>
 
-        <label htmlFor="gamesystem">Game System: </label>
-        <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
+        <label htmlFor="charactername">Character Name: </label>
+        <input id="characterName" type="text" name="charactername" placeholder="Name"/>
 
-        <label htmlFor="settinginfo">Setting Information: </label>
-        <textarea id="settinginfo" name="settinginfo" form="editCampaignForm" placeholder="Setting Information"></textarea>
+        <label htmlFor="characterlevel">Level: </label>
+        <input id="characterLevel" type="text" name="characterlevel" placeholder="Level"/>
+
+        <label htmlFor="characterhealth">Health: </label>
+        <input id="characterHealth" type="text" name="characterhealth" placeholder="Health"/>
+
+        <label htmlFor="characterstats">Stats: </label>
+        <textarea id="characterStats" name="characterstats" form="editCharacterForm" placeholder="Stats"></textarea>
+
+        <label htmlFor="characternotes">Notes: </label>
+        <textarea id="characterNotes" name="characternotes" form="editCharacterForm" placeholder="Notes"></textarea>
 
         <input type="hidden" name="_csrf" value={props.csrf}/>
 
-        <input className="editCampaign" type="submit" value="Finish Editing" />
+        <input className="editPlayer" type="submit" value="Finish Editing" />
     </form>
 };
 
-const NewCampaignForm = (props) => {
+const NewPlayerForm = (props) => {
     return (
-        <form id="newCampaignForm"
-              onSubmit={handleCampaign}
-              name="newCampaignForm"
-              action="/campaignNotes"
+        <form id="newPlayerForm"
+              onSubmit={handlePlayer}
+              name="newPlayerForm"
+              action="/playerNotes"
               method="POST"
-              className="newCampaignForm"
+              className="newPlayerForm"
         >
 
-            <label htmlFor="title">Title: </label>
-            <input id="campaignTitle" type="text" name="title" placeholder="Campaign Title"/>
+            <label htmlFor="playername">Player name: </label>
+            <input id="playerName" type="text" name="playername" placeholder="Name"/>
 
-            <label htmlFor="gamesystem">Game System: </label>
-            <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
+            <label htmlFor="charactername">Character Name: </label>
+            <input id="characterName" type="text" name="charactername" placeholder="Name"/>
 
-            <label htmlFor="settinginfo">Setting Information: </label>
-            <textarea id="settinginfo" name="settinginfo" form="newCampaignForm" placeholder="Setting Information"></textarea>
+            <label htmlFor="characterlevel">Level: </label>
+            <input id="characterLevel" type="text" name="characterlevel" placeholder="Level"/>
+
+            <label htmlFor="characterhealth">Health: </label>
+            <input id="characterHealth" type="text" name="characterhealth" placeholder="Health"/>
+
+            <label htmlFor="characterstats">Stats: </label>
+            <textarea id="characterStats" name="characterstats" form="editCharacterForm" placeholder="Stats"></textarea>
+
+            <label htmlFor="characternotes">Notes: </label>
+            <textarea id="characterNotes" name="characternotes" form="editCharacterForm" placeholder="Notes"></textarea>
 
             <input type="hidden" name="_csrf" value={props.csrf}/>
 
-            <input className="createCampaign" type="submit" value="Create" />
+            <input className="createPlayer" type="submit" value="Create" />
         </form>
     );
 };
 
 
 // Can add images to here with an image tag
-////// COPY NewCampaignForm AND ADD IT TO HERE FOR THE EDIT BUTTON
-///// at campaignNodes return div key...
-const CampaignList = function(props) {
-    if(props.campaigns.length === 0) {
+////// COPY NewPlayerForm AND ADD IT TO HERE FOR THE EDIT BUTTON
+///// at playerNodes return div key...
+const PlayerList = function(props) {
+    if(props.players.length === 0) {
         return (
-            <div className="campaignList">
-                <h3 className="emptyCampaign">No campaigns created</h3>
+            <div className="playerList">
+                <h3 className="emptyPlayer">No players created</h3>
             </div>
         );
     }
 
-    const campaignNodes = props.campaigns.map(function(campaign) {
+    const playerNodes = props.players.map(function(player) {
         return (
-            <div key={campaign._id} className="campaign">
-                <h3 className="campaignTitle"> {campaign.title} </h3>
-                <p className="campaignGameSystem"> Game System: {campaign.gamesystem} </p>
-                <p className="campaignSettingInfo"> Setting Info: {campaign.settinginfo} </p>
-                <button type="button" className="editCampaignButton">Edit</button>
+            <div key={player._id} className="player">
+                <h3 className="playerName"> {player.playername} </h3>
+                <p className="characterName"> {player.charactername}</p>
+                <p className="characterLevel"> Level: {player.characterlevel} </p>
+                <p className="characterHealth"> Health: {player.characterhealth} </p>
+                <p className="characterStats"> Stats: {player.characterstats} </p>
+                <p className="characterNotes"> Notes: {player.notes} </p>
+                <button type="button" className="editPlayerButton">Edit</button>
             </div>
         );
     });
 
     return (
-        <div className="campaignList">
-            {campaignNodes}
+        <div className="playerList">
+            {playerNodes}
         </div>
     );
 };
 
-const loadCampaignsFromServer = () => {
-    sendAjax('GET', '/getCampaigns', null, (data) => {
+const loadPlayersFromServer = () => {
+    sendAjax('GET', '/getPlayers', null, (data) => {
         ReactDOM.render(
-            <CampaignList campaigns={data.campaigns} />, document.querySelector("#campaigns")
+            <PlayerList players={data.players} />, document.querySelector("#items")
         );
     });
 };
 
-const setup = function(csrf) {
+const renderPlayers = function(csrf) {
     ReactDOM.render(
-        <NewCampaignForm csrf={csrf} />, document.querySelector("#campaignNotes")
+        <NewPlayerForm csrf={csrf} />, document.querySelector("#notes")
     );
 
     ReactDOM.render(
-        <CampaignList campaigns={[]} />, document.querySelector("#campaigns")
+        <PlayerList players={[]} />, document.querySelector("#items")
     );
 
-    loadCampaignsFromServer();
+    loadPlayersFromServer();
 };
-
-const getToken = () => {
-    sendAjax('GET', '/getToken', null, (result) => {
-        setup(result.csrfToken);
-    });
-};
-
-$(document).ready(function() {
-    getToken();
-});

@@ -24,27 +24,29 @@ const editCampaign = (e) => {
 };
 
 const EditCampaignForm = (props) => {
-    <form id="editCampaignForm"
-          onSubmit={editCampaign}
-          name="editCampaignForm"
-          action="/campaignNotes"
-          method="POST"
-          className="editCampaignForm"
-    >
+    return(
+        <form id="editCampaignForm"
+              onSubmit={editCampaign}
+              name="editCampaignForm"
+              action="/campaignNotes"
+              method="POST"
+              className="editCampaignForm"
+        >
 
-        <label htmlFor="title">Title: </label>
-        <input id="campaignTitle" type="text" name="title" placeholder="Campaign Title"/>
+            <label htmlFor="title">Title: </label>
+            <input id="campaignTitle" type="text" name="title" placeholder="Campaign Title"/>
 
-        <label htmlFor="gamesystem">Game System: </label>
-        <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
+            <label htmlFor="gamesystem">Game System: </label>
+            <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
 
-        <label htmlFor="settinginfo">Setting Information: </label>
-        <textarea id="settinginfo" name="settinginfo" form="editCampaignForm" placeholder="Setting Information"></textarea>
+            <label htmlFor="settinginfo">Setting Information: </label>
+            <textarea id="settinginfo" name="settinginfo" form="editCampaignForm" placeholder="Setting Information"></textarea>
 
-        <input type="hidden" name="_csrf" value={props.csrf}/>
+            <input type="hidden" name="_csrf" value={props.csrf}/>
 
-        <input className="editCampaign" type="submit" value="Finish Editing" />
-    </form>
+            <input className="editCampaign" type="submit" value="Finish Editing" />
+        </form>
+    );
 };
 
 const NewCampaignForm = (props) => {
@@ -107,29 +109,18 @@ const CampaignList = function(props) {
 const loadCampaignsFromServer = () => {
     sendAjax('GET', '/getCampaigns', null, (data) => {
         ReactDOM.render(
-            <CampaignList campaigns={data.campaigns} />, document.querySelector("#campaigns")
+            <CampaignList campaigns={data.campaigns} />, document.querySelector("#items")
         );
     });
 };
 
-const setup = function(csrf) {
+const renderCampaigns = function(csrf){
     ReactDOM.render(
-        <NewCampaignForm csrf={csrf} />, document.querySelector("#campaignNotes")
+        <NewCampaignForm csrf={csrf} />, document.querySelector("#notes")
     );
-
     ReactDOM.render(
-        <CampaignList campaigns={[]} />, document.querySelector("#campaigns")
+        <CampaignList campaigns={[]} />, document.querySelector("#items")
     );
 
     loadCampaignsFromServer();
 };
-
-const getToken = () => {
-    sendAjax('GET', '/getToken', null, (result) => {
-        setup(result.csrfToken);
-    });
-};
-
-$(document).ready(function() {
-    getToken();
-});

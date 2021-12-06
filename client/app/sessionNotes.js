@@ -1,135 +1,125 @@
 let popUpOpen = false;
 
-const handleCampaign = (e) => {
+const handleSession = (e) => {
     e.preventDefault();
 
-    if($("#campaignTitle").val() == '' || $("#gameSystem").val() == '' || $("#settingInfo").val() == ''){
-        handleError("All fields are required for campaign creation (Can be editted later)");
+    if($("#sessionTitle").val() == '' || $("#number").val() == '' || $("#notes").val() == ''){
+        handleError("All fields are required for session creation (Can be editted later)");
         return false;
     }
 
-    sendAjax('POST', $("#newCampaignForm").attr("action"), $("#newCampaignForm").serialize(), function() {
-        loadCampaignsFromServer();
+    sendAjax('POST', $("#newSessionForm").attr("action"), $("#newSessionForm").serialize(), function() {
+        loadSessionsFromServer();
     });
 
     return false;
 };
 
-const editCampaign = (e) => {
+const editSession = (e) => {
     e.preventDefault();
 
-    sendAjax('POST', $("#editCampaignForm").attr("action"), $("#editCampaignForm").serialize(), function() {
-        loadCampaignsFromServer();
+    sendAjax('POST', $("#editSessionForm").attr("action"), $("#editSessionForm").serialize(), function() {
+        loadSessionsFromServer();
     });
 };
 
-const EditCampaignForm = (props) => {
-    <form id="editCampaignForm"
-          onSubmit={editCampaign}
-          name="editCampaignForm"
-          action="/campaignNotes"
+const EditSessionForm = (props) => {
+    <form id="editSessionForm"
+          onSubmit={editSession}
+          name="editSessionForm"
+          action="/sessionNotes"
           method="POST"
-          className="editCampaignForm"
+          className="editSessionForm"
     >
 
         <label htmlFor="title">Title: </label>
-        <input id="campaignTitle" type="text" name="title" placeholder="Campaign Title"/>
+        <input id="sessionTitle" type="text" name="title" placeholder="Session Title"/>
 
-        <label htmlFor="gamesystem">Game System: </label>
-        <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
+        <label htmlFor="number">Session Number: </label>
+        <input id="number" type="text" name="number" placeholder="Number"/>
 
-        <label htmlFor="settinginfo">Setting Information: </label>
-        <textarea id="settinginfo" name="settinginfo" form="editCampaignForm" placeholder="Setting Information"></textarea>
+        <label htmlFor="notes">Notes: </label>
+        <textarea id="notes" name="notes" form="editSessionForm" placeholder="Notes"></textarea>
 
         <input type="hidden" name="_csrf" value={props.csrf}/>
 
-        <input className="editCampaign" type="submit" value="Finish Editing" />
+        <input className="editSession" type="submit" value="Finish Editing" />
     </form>
 };
 
-const NewCampaignForm = (props) => {
+const NewSessionForm = (props) => {
     return (
-        <form id="newCampaignForm"
-              onSubmit={handleCampaign}
-              name="newCampaignForm"
-              action="/campaignNotes"
+        <form id="newSessionForm"
+              onSubmit={handleSession}
+              name="newSessionForm"
+              action="/sessionNotes"
               method="POST"
-              className="newCampaignForm"
+              className="newSessionForm"
         >
 
             <label htmlFor="title">Title: </label>
-            <input id="campaignTitle" type="text" name="title" placeholder="Campaign Title"/>
+            <input id="sessionTitle" type="text" name="title" placeholder="Session Title"/>
 
-            <label htmlFor="gamesystem">Game System: </label>
-            <input id="gameSystem" type="text" name="gamesystem" placeholder="Game System"/>
+            <label htmlFor="number">Session Number: </label>
+            <input id="number" type="text" name="number" placeholder="Number"/>
 
-            <label htmlFor="settinginfo">Setting Information: </label>
-            <textarea id="settinginfo" name="settinginfo" form="newCampaignForm" placeholder="Setting Information"></textarea>
+            <label htmlFor="notes">Notes: </label>
+            <textarea id="notes" name="notes" form="editSessionForm" placeholder="Notes"></textarea>
 
             <input type="hidden" name="_csrf" value={props.csrf}/>
 
-            <input className="createCampaign" type="submit" value="Create" />
+            <input className="createSession" type="submit" value="Finish Editing" />
         </form>
     );
 };
 
 
 // Can add images to here with an image tag
-////// COPY NewCampaignForm AND ADD IT TO HERE FOR THE EDIT BUTTON
-///// at campaignNodes return div key...
-const CampaignList = function(props) {
-    if(props.campaigns.length === 0) {
+////// COPY NewSessionForm AND ADD IT TO HERE FOR THE EDIT BUTTON
+///// at sessionNodes return div key...
+const SessionList = function(props) {
+    if(props.sessions.length === 0) {
         return (
-            <div className="campaignList">
-                <h3 className="emptyCampaign">No campaigns created</h3>
+            <div className="sessionList">
+                <h3 className="emptySession">No sessions created</h3>
             </div>
         );
     }
 
-    const campaignNodes = props.campaigns.map(function(campaign) {
+    const sessionNodes = props.sessions.map(function(session) {
         return (
-            <div key={campaign._id} className="campaign">
-                <h3 className="campaignTitle"> {campaign.title} </h3>
-                <p className="campaignGameSystem"> Game System: {campaign.gamesystem} </p>
-                <p className="campaignSettingInfo"> Setting Info: {campaign.settinginfo} </p>
-                <button type="button" className="editCampaignButton">Edit</button>
+            <div key={session._id} className="session">
+                <h3 className="sessionTitle"> {session.title} </h3>
+                <p className="sessionGameSystem"> Game System: {session.gamesystem} </p>
+                <p className="sessionSettingInfo"> Setting Info: {session.settinginfo} </p>
+                <button type="button" className="editSessionButton">Edit</button>
             </div>
         );
     });
 
     return (
-        <div className="campaignList">
-            {campaignNodes}
+        <div className="sessionList">
+            {sessionNodes}
         </div>
     );
 };
 
-const loadCampaignsFromServer = () => {
-    sendAjax('GET', '/getCampaigns', null, (data) => {
+const loadSessionsFromServer = () => {
+    sendAjax('GET', '/getSessions', null, (data) => {
         ReactDOM.render(
-            <CampaignList campaigns={data.campaigns} />, document.querySelector("#campaigns")
+            <SessionList sessions={data.sessions} />, document.querySelector("#items")
         );
     });
 };
 
-const setup = function(csrf) {
+const renderSessions = function(csrf) {
     ReactDOM.render(
-        <NewCampaignForm csrf={csrf} />, document.querySelector("#campaignNotes")
+        <NewSessionForm csrf={csrf} />, document.querySelector("#notes")
     );
 
     ReactDOM.render(
-        <CampaignList campaigns={[]} />, document.querySelector("#campaigns")
+        <SessionList sessions={[]} />, document.querySelector("#items")
     );
 
-    loadCampaignsFromServer();
+    loadSessionsFromServer();
 };
-
-const getToken = () => {
-    sendAjax('GET', '/getToken', null, (result) => {
-        setup(result.csrfToken);
-    });
-};
-
-$(document).ready(function() {
-    getToken();
-});
