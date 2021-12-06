@@ -56,34 +56,35 @@ const changePass = (request, response) => {
         return res.status(400).json({error: 'New password does not match re-typed password'});
     }
 
-    return Account.AccountModel.authenticate(req.session.account.username, oldPass, (err, account) => {
-        if(err || !account) {
-            return res.status(401).json({error: 'Wrong username or password'});
-        }
+    return (
+        Account.AccountModel.authenticate(req.session.account.username, oldPass, (err, account) => {
+            if(err || !account) {
+                return res.status(401).json({error: 'Wrong username or password'});
+            }
 
-        return Account.AccountModel.generateHash(newPass, (salt, hash) => {
+            return Account.AccountModel.generateHash(newPass, (salt, hash) => {
 
-            account.salt = salt;
-            account.password = hash;
+                account.salt = salt;
+                account.password = hash;
 
-            const savePromise = account.save();
+                const savePromise = account.save();
 
-            savePromise.then(() => {
-                return res.json({redirect: '/campaignNotes'});
-            });
+                savePromise.then(() => {
+                    return res.json({redirect: '/campaignNotes'});
+                });
 
 
-            savePromise.catch((err) => {
-                console.log(err);
+                savePromise.catch((err) => {
+                    console.log(err);
 
-                if(err.code === 11000){
-                    return res.status(400).json({error: 'Username already in use.'});
-                }
+                    if(err.code === 11000){
+                        return res.status(400).json({error: 'Username already in use.'});
+                    }
 
-                return res.status(400).json({error: 'An error occurred'});
+                    return res.status(400).json({error: 'An error occurred'});
+                })
             })
-        })
-    });
+    }));
 };
 ///////////////////////////////////////////////////////////////////////////////////
 
